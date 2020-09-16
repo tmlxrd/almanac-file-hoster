@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      font-size: 20px;
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .hide-all-time {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <input class="hide" id='field-for-code' />
+  <button type="button" id='button-send' class="hide">Скачать файл</button>
+  <a href="#" id="download-file" class="hide-all-time"></a>
+  <br />
+  <span class="hide" id="name-file">Файл скачан</span><span class="hide" id=download-counter></span><br />
+  <span id='file-delete-time'> </span><span id="t"></span>
+  <script>
+    let downloadFile = document.getElementById('download-file')
+    const paramsString = document.location.search;
+    const searchParams = new URLSearchParams(paramsString);
+    async function downloadFunction() {
+      const data = {
+        code: searchParams.get('code'),
+      };
+
+      try {
+        const response = await fetch('/api/download-file', {
+          method: 'POST', // или 'PUT'
+          body: JSON.stringify(data), // данные могут быть 'строкой' или {объектом}!
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const json = await response.json();
+        if (json === 'File undefined') {
+          alert('Файл не найден')
+        } else {
+          console.log(json)
+          downloadFile.setAttribute('href', json.path)
+          let checkboxArray = Array.from(document.getElementsByClassName('hide'))
+          document.getElementById('name-file').innerHTML = json.originalName
+          document.getElementById('download-counter').innerHTML =`&nbsp;${json.downloadCounter} раз`
+          checkboxArray.forEach(element => element.style.display = "inline-block");
+          let fieldForCode = document.getElementById('field-for-code')
+          fieldForCode.value = json.code
+          fieldForCode.onclick = () => {
+            fieldForCode.select()
+          }
+          timeend = new Date();
+          // IE и FF по разному отрабатывают getYear()
+          timeend = new Date(timeend.getYear() > 1900 ? (timeend.getYear() + 1) : (timeend.getYear() + 1901), 0, 1);
+          // для задания обратного отсчета до определенной даты укажите дату в формате:
+          // timeend= new Date(ГОД, МЕСЯЦ-1, ДЕНЬ);
+          // Для задания даты с точностью до времени укажите дату в формате:
+          //   console.log(${yearForDelete}, ${monthForDelete}, ${dayForDelete}, ${hour})
+          timeend = new Date(json.year, json.month - 1, json.day, json.hour, json.minute);
+          function time() {
+            today = new Date();
+            today = Math.floor((timeend - today) / 1000);
+            tsec = today % 60; today = Math.floor(today / 60); if (tsec < 10) tsec = '0' + tsec;
+            tmin = today % 60; today = Math.floor(today / 60); if (tmin < 10) tmin = '0' + tmin;
+            thour = today % 24; today = Math.floor(today / 24);
+            timestr = today + " дней " + thour + " часов " + tmin + " минут " + tsec + " секунд";
+            document.getElementById('t').innerHTML = timestr;
+          }
+          setInterval(() => {
+            time()
+          }, 1000);
+          if (json.oneDownload === true) {
+            document.getElementById('file-delete-time').innerHTML = 'Файл удалиться после загрузки или автоматически через: '
+          } else {
+            document.getElementById('file-delete-time').innerHTML = 'Файл удалиться через: '
+          }
+          document.getElementById('button-send').onclick = async () => {
+            
+            
+            const response = await fetch('/api/download-file/click', {
+          method: 'POST', // или 'PUT'
+          body: JSON.stringify({code:searchParams.get('code')}), // данные могут быть 'строкой' или {объектом}!
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const json = await response.json();
+        if (json === 'File undefined') {
+          alert('Файл не найден')
+        } else {
+         
+            downloadFile.click()
+            document.getElementById('download-counter').innerHTML = `&nbsp;${json} раз`
+        }
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка:', error);
+      }
+    }
+    downloadFunction()
+  </script>
+</body>
+
+</html>
