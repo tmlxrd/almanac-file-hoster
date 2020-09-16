@@ -13,6 +13,7 @@
   "dependencies": {
     "aws-sdk": "^2.747.0",
     "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsreport-aws-s3-storage": "^1.1.0",
     "mongoose": "^5.10.3",
