@@ -5,6 +5,8 @@ var bodyParser = require("body-parser");
 require("./back-end/mongodb/db",{ useNewUrlParser: true, useFindAndModify: false});
 require("dotenv").config();
 
+const port = 5000||8000
+
 const storageConfig = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "delete");
@@ -15,10 +17,11 @@ const storageConfig = multer.diskStorage({
 });
 
 app
-
   .use(express.static("front-end"))
   .use(express.json())
   .use(bodyParser.json())
   .use(multer({ storage: storageConfig }).single("filedata"))
   .use(require("./back-end/api/api"))
-  .listen(5000);
+  .listen(port, function() {
+    console.log("App is running on port " + port);
+});
