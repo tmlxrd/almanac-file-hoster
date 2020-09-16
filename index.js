@@ -3,7 +3,6 @@ const multer = require("multer");
 const app = express();
 var bodyParser = require("body-parser");
 require("./back-end/mongodb/db",{ useNewUrlParser: true, useFindAndModify: false});
-require("dotenv").config();
 
 const port = 5000||8000
 
